@@ -11,6 +11,8 @@ using MongoRepositoryPattern.Context;
 using MongoRepositoryPattern.Models;
 using MongoRepositoryPattern.Repositories.Domain;
 using MongoRepositoryPattern.Repositories.Domain.Interfaces;
+using MongoRepositoryPattern.Services.Departements;
+using MongoRepositoryPattern.Services.Employees;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,10 +45,19 @@ namespace MongoRepositoryPattern
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MongoRepositoryPattern", Version = "v1" });
             });
 
+            #region contexts_registration
             services.AddTransient<IMongoContext, MongoContext>();
+            #endregion
 
+            #region repositories_registration
             services.AddTransient<IEmployeeRepositoryAsync, EmployeeRepositoryAsync>();
             services.AddTransient<IDepartementRepositoryAsync, DepartementRepositoryAsync>();
+            #endregion
+
+            #region service_registration
+            services.AddTransient<IEmployeeService, EmployeeService>();
+            services.AddTransient<IDepartementService, DepartementServices>();
+            #endregion`
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

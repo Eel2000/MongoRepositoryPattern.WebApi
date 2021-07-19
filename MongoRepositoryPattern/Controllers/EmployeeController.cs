@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MongoRepositoryPattern.DTOs;
 using MongoRepositoryPattern.Models;
 using MongoRepositoryPattern.Repositories.Domain.Interfaces;
+using MongoRepositoryPattern.Services.Employees;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +15,11 @@ namespace MongoRepositoryPattern.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly IEmployeeRepositoryAsync employeeRepository;
+        private readonly IEmployeeService _employeeService;
 
-        public EmployeeController(IEmployeeRepositoryAsync employeeRepository)
+        public EmployeeController(IEmployeeService employeeService)
         {
-            this.employeeRepository = employeeRepository;
+            _employeeService = employeeService;
         }
 
         [HttpGet("get-all-employees")]
@@ -26,7 +27,7 @@ namespace MongoRepositoryPattern.Controllers
         {
             try
             {
-                return Ok(await employeeRepository.ToListAsync());
+                return Ok(await _employeeService.GetAll());
             }
             catch (Exception e)
             {
@@ -40,19 +41,7 @@ namespace MongoRepositoryPattern.Controllers
         {
             try
             {
-                var emp = new Employee
-                {
-                    Nom = employee.Nom,
-                    Postnom = employee.Postnom,
-                    Prenom = employee.Prenom,
-                    Email = employee.Email,
-                    EtatCivil = employee.EtatCivil,
-                    Telephone = employee.Telephone,
-                    IdDepartement = employee.IdDepartement
-                };
-
-                await employeeRepository.AddAsync(emp);
-                return Ok("new employee added successfully");
+                return Ok(await _employeeService.CreateEmployee(employee));
             }
             catch (Exception e)
             {
@@ -62,25 +51,25 @@ namespace MongoRepositoryPattern.Controllers
         }
 
         [HttpPut("update-emplyee")]
-        public async Task<IActionResult> UpdateAsync([FromBody] EmployeeDto employee, string id)
+        public async Task<IActionResult> UpdateAsync([FromBody] EmployeeDto employee)
         {
             try
             {
-                var emp = new Employee
-                {
-                    Id = id,
-                    Nom = employee.Nom,
-                    Postnom = employee.Postnom,
-                    Prenom = employee.Prenom,
-                    Email = employee.Email,
-                    EtatCivil = employee.EtatCivil,
-                    Telephone = employee.Telephone,
-                    IdDepartement = employee.IdDepartement
-                };
+                return Ok(await _employeeService.UpdateEmployee(employee));
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+                throw;
+            }
+        }
 
-                await employeeRepository.UpdateAsync(x => x.Id == id, emp);
-
-                return Ok(await employeeRepository.FirstOrDefaultAsync(x=>x.Id == id));
+        [HttpDelete("delete-employee")]
+        public async Task<IActionResult> Delete([FromQuery] string id)
+        {
+            try
+            {
+                return Ok(await _employeeService.DeleteEmployee(id));
             }
             catch (Exception e)
             {

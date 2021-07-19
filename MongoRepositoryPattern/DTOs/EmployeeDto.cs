@@ -9,6 +9,7 @@ namespace MongoRepositoryPattern.DTOs
 {
     public class EmployeeDto
     {
+        public string Id { get; set; }
         public string Nom { get; set; }
         public string Postnom { get; set; }
         public string Prenom { get; set; }
