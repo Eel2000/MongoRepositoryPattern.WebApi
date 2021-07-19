@@ -7,6 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MongoRepositoryPattern.Context;
+using MongoRepositoryPattern.Models;
+using MongoRepositoryPattern.Repositories.Domain;
+using MongoRepositoryPattern.Repositories.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,12 +30,23 @@ namespace MongoRepositoryPattern
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<Settings>(options =>
+            {
+                options.ConnectionString = Configuration.GetSection("Mongodb:ConnectionString").Value;
+                options.Database = Configuration.GetSection("Mongodb:Database").Value;
+            });
+
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "MongoRepositoryPattern", Version = "v1" });
             });
+
+            services.AddTransient<IMongoContext, MongoContext>();
+
+            services.AddTransient<IEmployeeRepositoryAsync, EmployeeRepositoryAsync>();
+            services.AddTransient<IDepartementRepositoryAsync, DepartementRepositoryAsync>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
